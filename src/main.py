@@ -1,11 +1,14 @@
+import numpy as np
+
 import cv2
 from numpy import reshape, zeros, random, sum, min, multiply, where
 import matplotlib.pyplot as plt
 
 def KMeansInitCentroids(X, K):
     random_index = random.permutation(X.shape[0])
-    centroids = X[random_index[1:K]][:]
+    centroids = X[random_index[0:K]][:]
     return centroids
+
 def runKMeans(X, initial_centroids, max_iters, plot_progress=False):
     (m, n) = X.shape
     K = initial_centroids.shape[0]
@@ -21,11 +24,11 @@ def runKMeans(X, initial_centroids, max_iters, plot_progress=False):
 def findClosestCentroids(X, centroids):
     K = centroids.shape[0]
     index = zeros((X.shape[0], 1))
-    sub = zeros((1, K))
+    sub = zeros((K, 1))
     for i in range(X.shape[0]):
         for j in range(K):
             sub[j] = sum(multiply(X[i][:] - centroids[j][:], X[i][:] - centroids[j][:]))
-        index[i] = where(sub == min(sub))
+        index[i] = where(sub == min(sub))[0][0]
     return index
 
 def computeCentroids(X, index, K):
@@ -41,9 +44,8 @@ def computeCentroids(X, index, K):
         centroids[i][:] = sum/count
     return centroids
 
-A = (cv2.imread('bird_small.png'))
+A = np.float32(cv2.imread('bird_small.png'))
 A = A / 255
-
 image_size = A.shape
 
 X = reshape(A, (image_size[0] * image_size[1], image_size[2]))
@@ -52,14 +54,19 @@ K = 16
 max_iters = 10
 
 initial_centroids = KMeansInitCentroids(X, K)
+
 centroids, index = runKMeans(X, initial_centroids, max_iters)
+
 print('\nApplying K-Means to compress an image.\n\n')
 
 index = findClosestCentroids(X, centroids)
+X_recovered = centroids[index.astype('int64')][:]
 
-X_recovered = centroids[index][:]
+X_recovered = reshape(X_recovered, (image_size[0], image_size[1], 3))
+X_recovered = np.float32(X_recovered)
 
-X_recovered = reshape(X_recovered, image_size[0], image_size[1], 3)
+A = cv2.cvtColor(A, cv2.COLOR_BGR2RGB)
+X_recovered = cv2.cvtColor(X_recovered, cv2.COLOR_BGR2RGB)
 
 plt.subplot(1, 2, 1)
 plt.imshow(A)
