@@ -6,6 +6,7 @@
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [Demo](#demo)
 
 ## Installation
 
@@ -37,3 +38,9 @@ Once installed, you can use the image compression tools as follows:
 cd src
 python main.py
 ```
+
+## Demo
+
+After running the application, the result should look like this:
+
+![image](https://github.com/Anthony-D11/ImageCompression/blob/main/Result.png?raw=true)
